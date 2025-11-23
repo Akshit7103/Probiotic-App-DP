@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Probiotic Drink Designer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Probiotic Drink Designer</h1>
+      <p>Design low-ABV, naturally carbonated blends using your WWY model.</p>
+    </header>
+
+    <main class="main">
+      <section class="card">
+        <h2>1. Design Settings</h2>
+
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-mode="auto">Auto Mode</button>
+          <button class="mode-btn" data-mode="manual">Manual Mode</button>
+        </div>
+
+        <!-- Auto mode form -->
+        <form id="auto-form" class="mode-form">
+          <div class="field">
+            <label for="sweetness">Sweetness (1–10)</label>
+            <input type="number" id="sweetness" name="sweetness" min="1" max="10" value="7">
+          </div>
+
+          <div class="field">
+            <label for="tartness">Tartness (1–10)</label>
+            <input type="number" id="tartness" name="tartness" min="1" max="10" value="5">
+          </div>
+
+          <div class="field">
+            <label for="style">Flavour Style</label>
+            <select id="style" name="style">
+              <option value="">Any</option>
+              <option value="tropical">Tropical</option>
+              <option value="berry">Berry</option>
+              <option value="citrus">Citrus</option>
+              <option value="neutral">Neutral</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="auto-batch_l">Batch Size (L)</label>
+            <input type="number" id="auto-batch_l" name="batch_l" step="0.5" value="3">
+          </div>
+
+          <div class="field">
+            <label for="auto-juice_ml_per_L">Total Juice per L (ml)</label>
+            <input type="number" id="auto-juice_ml_per_L" name="juice_ml_per_L" step="5" value="80">
+          </div>
+
+          <button type="submit" class="btn-primary">Generate Auto Blend</button>
+        </form>
+
+        <!-- Manual mode form -->
+        <form id="manual-form" class="mode-form hidden">
+          <div class="field-row">
+            <div class="field">
+              <label for="fruit1">Fruit 1</label>
+              <select id="fruit1" name="fruit1"></select>
+            </div>
+            <div class="field">
+              <label for="pct1">% of blend</label>
+              <input type="number" id="pct1" name="pct1" min="0" max="100" value="40">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="fruit2">Fruit 2</label>
+              <select id="fruit2" name="fruit2"></select>
+            </div>
+            <div class="field">
+              <label for="pct2">% of blend</label>
+              <input type="number" id="pct2" name="pct2" min="0" max="100" value="30">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="fruit3">Fruit 3</label>
+              <select id="fruit3" name="fruit3"></select>
+            </div>
+            <div class="field">
+              <label for="pct3">% of blend</label>
+              <input type="number" id="pct3" name="pct3" min="0" max="100" value="20">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="fruit4">Fruit 4</label>
+              <select id="fruit4" name="fruit4"></select>
+            </div>
+            <div class="field">
+              <label for="pct4">% of blend</label>
+              <input type="number" id="pct4" name="pct4" min="0" max="100" value="10">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="manual-batch_l">Batch Size (L)</label>
+            <input type="number" id="manual-batch_l" name="batch_l" step="0.5" value="3">
+          </div>
+
+          <div class="field">
+            <label for="manual-juice_ml_per_L">Total Juice per L (ml)</label>
+            <input type="number" id="manual-juice_ml_per_L" name="juice_ml_per_L" step="5" value="80">
+          </div>
+
+          <div class="field">
+            <label for="temp_C">Room Temperature (°C)</label>
+            <input type="number" id="temp_C" name="temp_C" step="0.5" value="28">
+          </div>
+
+          <button type="submit" class="btn-primary">Calculate Manual Blend</button>
+        </form>
+      </section>
+
+      <section class="card" id="results-card">
+        <h2>2. Suggested Blend & Recipe</h2>
+        <div id="blend-output" class="blend-output hidden">
+          <h3>Fruits</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Fruit</th>
+                <th>% in Blend</th>
+                <th>ml / L</th>
+                <th>ml for Batch</th>
+              </tr>
+            </thead>
+            <tbody id="fruits-table-body"></tbody>
+          </table>
+
+          <h3>Fermentation Metrics</h3>
+          <div class="metrics">
+            <div class="metric">
+              <span class="label">Total Sugar</span>
+              <span class="value" id="metric-sugar"></span>
+              <span class="unit">g/L</span>
+            </div>
+            <div class="metric">
+              <span class="label">CO₂</span>
+              <span class="value" id="metric-co2"></span>
+              <span class="unit">vols</span>
+            </div>
+            <div class="metric">
+              <span class="label">ABV</span>
+              <span class="value" id="metric-abv"></span>
+              <span class="unit">% (max)</span>
+            </div>
+            <div class="metric">
+              <span class="label">Safety</span>
+              <span class="value" id="metric-safety"></span>
+            </div>
+          </div>
+
+          <h3>Cost & Safety Guidance</h3>
+          <p id="metric-cost" class="muted"></p>
+          <p id="metric-safety-detail" class="muted"></p>
+
+          <h3>Recipe Summary</h3>
+          <p id="recipe-summary"></p>
+        </div>
+
+        <div id="no-results" class="muted">
+          Choose Auto or Manual mode, fill the form and click <strong>Generate</strong> to see a recipe.
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Powered by your WWY Excel model, now in a web app.</p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
