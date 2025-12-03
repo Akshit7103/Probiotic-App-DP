@@ -127,40 +127,146 @@ The application reads from `WWY_ProbioticDrink_Model_v1_DASHBOARD.xlsx` with the
 
 ## 🌐 API Endpoints
 
+### Main Application
 - `GET /` - Main application page
+- `GET /health` - Health check endpoint (returns status, timestamp, version)
+
+### Data Endpoints
 - `GET /api/metadata` - Get list of available fruits
+
+### Weather & Calculation
 - `POST /api/weather` - Get temperature for given coordinates
+  - Request: `{"lat": 40.7128, "lon": -74.0060}`
+  - Response: `{"success": true, "temp_c": 25, "humidity": 60, "weather": "Clear", "location": "New York, USA"}`
+
 - `POST /api/juice/recommend` - Calculate optimal juice amount
+  - Request: `{"fruits": ["Apple", "Orange"], "target_sugar_g_L": 7.0}`
+  - Response: `{"success": true, "recommended_ml_per_L": 80, "reasoning": "...", "sugar_estimate_g_L": 7.1}`
+
+### Recipe Generation
 - `POST /api/suggest/auto` - Generate auto blend
+  - Request: `{"sweetness": 7, "tartness": 5, "style": "tropical", "batch_l": 3, "juice_ml_per_L": 80, "temp_C": 28}`
+  - Validation: All parameters have min/max ranges enforced
+
 - `POST /api/suggest/manual` - Calculate manual blend
+  - Request: `{"fruit1": "Apple", "fruit2": "Orange", "pct1": 50, "pct2": 50, "batch_l": 3, "juice_ml_per_L": 80, "temp_C": 28}`
+  - Auto-corrects percentages if they don't sum to 100%
+
+### Error Handling
+
+All endpoints return proper HTTP status codes:
+- `200` - Success
+- `400` - Bad Request (invalid input)
+- `404` - Not Found
+- `413` - Request Too Large
+- `500` - Internal Server Error
+- `503` - Service Unavailable (health check failed)
 
 ## 🚀 Deployment
+
+### Production Checklist
+
+Before deploying to production:
+
+- [ ] Set a strong `SECRET_KEY` environment variable
+- [ ] Set `FLASK_DEBUG=False`
+- [ ] Ensure the Excel file `WWY_ProbioticDrink_Model_v1_DASHBOARD.xlsx` is included
+- [ ] Configure monitoring for the `/health` endpoint
+- [ ] Set up error tracking (optional: Sentry)
+- [ ] Configure HTTPS/SSL for your domain
+- [ ] Set appropriate CORS headers if needed
 
 ### Heroku
 
 ```bash
+# Login to Heroku
+heroku login
+
+# Create new app
 heroku create your-app-name
+
+# Set environment variables
+heroku config:set SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
+heroku config:set FLASK_DEBUG=False
+
+# Deploy
 git push heroku master
+
+# Open app
 heroku open
+
+# View logs
+heroku logs --tail
 ```
 
 ### Railway
 
 1. Connect your GitHub repository to Railway
 2. Railway will automatically detect the Procfile
-3. Deploy with one click
+3. Add environment variables in Railway dashboard:
+   - `SECRET_KEY`: Generate a secure key
+   - `FLASK_DEBUG`: Set to `False`
+4. Deploy with one click
+5. Railway will automatically use `runtime.txt` for Python version
 
 ### Render
 
-1. Connect your GitHub repository
-2. Set build command: `pip install -r requirements.txt`
-3. Set start command: `gunicorn app:app`
+1. Connect your GitHub repository to Render
+2. Create a new Web Service
+3. Configure:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn app:app --bind 0.0.0.0:$PORT`
+   - **Environment Variables**:
+     - `SECRET_KEY`: Generate a secure key
+     - `FLASK_DEBUG`: `False`
+     - `PYTHON_VERSION`: `3.11.9`
+4. Deploy
+
+### Other Platforms (AWS, GCP, Azure, DigitalOcean, etc.)
+
+Use the Dockerfile approach:
+
+```bash
+# Build image
+docker build -t probiotic-app .
+
+# Run container
+docker run -p 8000:8000 \
+  -e SECRET_KEY="your-secret-key" \
+  -e FLASK_DEBUG=False \
+  probiotic-app
+```
+
+### Health Check Endpoint
+
+After deployment, verify the app is running:
+```bash
+curl https://your-app-url.com/health
+```
+
+Expected response:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-01-01T12:00:00.000000",
+  "version": "1.0.0",
+  "fruits_loaded": 17
+}
+```
 
 ## 🔧 Environment Variables
 
-Optional environment variables:
-- `PORT`: Port number (default: 5000)
-- `FLASK_DEBUG`: Set to "true" for debug mode (development only)
+Create a `.env` file based on `.env.example`:
+
+**Required:**
+- `SECRET_KEY`: Flask secret key for sessions (generate with: `python -c "import secrets; print(secrets.token_hex(32))"`)
+
+**Optional:**
+- `PORT`: Port number (default: 8000)
+- `FLASK_DEBUG`: Set to "true" for debug mode (development only, never in production!)
+- `WEATHER_API_TIMEOUT`: Timeout for weather API requests (default: 10 seconds)
+- `MAX_BATCH_SIZE`: Maximum batch size in liters (default: 50)
+- `LOG_LEVEL`: Logging level (default: INFO)
 
 ## 🎨 Color Palette
 
@@ -177,6 +283,8 @@ Optional environment variables:
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
 - **Weather API**: wttr.in (free, no API key required)
 - **Deployment**: Gunicorn WSGI server
+- **Logging**: Python logging with rotating file handler
+- **Validation**: Input validation and error handling
 
 ## 📝 License
 
@@ -197,15 +305,31 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - Temperature auto-detection requires browser location permission
 - Works best on modern browsers (Chrome, Firefox, Safari, Edge)
 
+## 🔥 Production Features (New!)
+
+This version includes production-ready enhancements:
+
+- ✅ **Comprehensive Logging**: Rotating log files for monitoring and debugging
+- ✅ **Input Validation**: All user inputs validated with proper error messages
+- ✅ **Error Handlers**: Custom error pages for 404, 500, 413 errors
+- ✅ **Health Check Endpoint**: `/health` for monitoring and load balancers
+- ✅ **Environment Configuration**: Proper environment variable management
+- ✅ **Security Headers**: Request size limits and secure configuration
+- ✅ **Production Logging**: Structured logs with timestamps and severity levels
+
 ## 💡 Future Enhancements
 
-- Save and load recipes
+- User authentication and recipe storage
+- Save and load recipes to database
 - Export recipes as PDF
 - Batch scaling calculator
 - Shopping list generation
 - Fermentation timer with notifications
 - Multi-language support
 - PWA (Progressive Web App) capabilities
+- Database migration (PostgreSQL/SQLite)
+- Rate limiting and CORS configuration
+- Automated testing suite
 
 ## 📞 Support
 

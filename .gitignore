@@ -42,6 +42,14 @@ Thumbs.db
 instance/
 .webassets-cache
 
+# Logs
+logs/
+*.log
+
 # Environment variables
 .env
 .env.local
+
+# Temporary files
+*.tmp
+*.bak

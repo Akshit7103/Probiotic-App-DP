@@ -9,6 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const noResults = document.getElementById("no-results");
   const tableBody = document.getElementById("fruits-table-body");
   const correctionNotification = document.getElementById("correction-notification");
+  const fermentOptimalEl = document.getElementById("ferment-optimal");
+  const fermentRangeTextEl = document.getElementById("ferment-range-text");
+  const fermentRecommendationEl = document.getElementById("ferment-recommendation");
+  const phase1TimeEl = document.getElementById("phase-1-time");
+  const phase2TimeEl = document.getElementById("phase-2-time");
 
   // Temperature detection elements
   const autoDetectTempBtn = document.getElementById("auto-detect-temp");
@@ -31,8 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const co2El = document.getElementById("metric-co2");
   const abvEl = document.getElementById("metric-abv");
   const safetyEl = document.getElementById("metric-safety");
-  const costEl = document.getElementById("metric-cost");
-  const safetyDetailEl = document.getElementById("metric-safety-detail");
   const recipeSummaryEl = document.getElementById("recipe-summary");
 
   const fruitSelects = [
@@ -155,10 +158,26 @@ document.addEventListener("DOMContentLoaded", () => {
       let target_sugar_g_L = 7.0; // Default medium
 
       if (typeof intensityOrTarget === "string") {
-        // Intensity mode (auto)
-        if (intensityOrTarget === "light") target_sugar_g_L = 5.0;
-        else if (intensityOrTarget === "medium") target_sugar_g_L = 7.0;
-        else if (intensityOrTarget === "strong") target_sugar_g_L = 9.0;
+        // Intensity mode (auto) - use a direct mapping so the UI always changes
+        let recommended_ml_per_L;
+        if (intensityOrTarget === "light") {
+          target_sugar_g_L = 5.0;
+          recommended_ml_per_L = 60;
+        } else if (intensityOrTarget === "medium") {
+          target_sugar_g_L = 7.0;
+          recommended_ml_per_L = 80;
+        } else if (intensityOrTarget === "strong") {
+          target_sugar_g_L = 9.0;
+          recommended_ml_per_L = 100;
+        } else {
+          // Fallback
+          recommended_ml_per_L = 80;
+        }
+
+        juiceInput.value = recommended_ml_per_L;
+        statusEl.textContent = `✓ Set to ${recommended_ml_per_L} ml/L for ${intensityOrTarget} intensity (target ~${target_sugar_g_L} g/L sugar).`;
+        statusEl.className = "juice-status success";
+        return;
       } else if (typeof intensityOrTarget === "number") {
         // Specific target (manual)
         target_sugar_g_L = intensityOrTarget;
@@ -249,6 +268,17 @@ document.addEventListener("DOMContentLoaded", () => {
   autoForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // Show loading state on every submit so user sees something change
+    noResults.style.display = "none";
+    blendOutput.classList.remove("hidden");
+    tableBody.innerHTML = "";
+    fermentOptimalEl.textContent = "...";
+    fermentRangeTextEl.textContent = "Calculating...";
+    fermentRecommendationEl.textContent = "Calculating blend and fermentation time...";
+    fermentRecommendationEl.className = "fermentation-quality";
+    phase1TimeEl.textContent = "--";
+    phase2TimeEl.textContent = "--";
+
     const payload = {
       sweetness: autoForm.sweetness.value,
       tartness: autoForm.tartness.value,
@@ -276,6 +306,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Manual form submit ---
   manualForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    // Show loading state on every submit so user sees something change
+    noResults.style.display = "none";
+    blendOutput.classList.remove("hidden");
+    tableBody.innerHTML = "";
+    fermentOptimalEl.textContent = "...";
+    fermentRangeTextEl.textContent = "Calculating...";
+    fermentRecommendationEl.textContent = "Calculating blend and fermentation time...";
+    fermentRecommendationEl.className = "fermentation-quality";
+    phase1TimeEl.textContent = "--";
+    phase2TimeEl.textContent = "--";
 
     const payload = {
       fruit1: manualForm.fruit1.value,
@@ -386,19 +427,6 @@ document.addEventListener("DOMContentLoaded", () => {
     co2El.textContent = (data.co2_vols ?? 0).toFixed(1);
     abvEl.textContent = (data.abv_percent ?? 0).toFixed(2);
     safetyEl.textContent = data.safety_flag || "Safe";
-
-    if (data.cost_estimate != null) {
-      costEl.textContent = `$${data.cost_estimate}`;
-    } else {
-      costEl.textContent = "--";
-    }
-
-    if (data.safety_detail) {
-      const sd = data.safety_detail;
-      safetyDetailEl.textContent = `${sd.temp_C}°C • Max ${sd.max_hours}h • ${sd.risk} risk`;
-    } else {
-      safetyDetailEl.textContent = "--";
-    }
 
     const fruitsList = (data.fruits || [])
       .map((f) => `${(f.pct * 100).toFixed(0)}% ${f.name}`)
