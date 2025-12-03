@@ -2,182 +2,378 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Probiotic Drink Designer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Probiotic Designer</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+  <!-- Floating bubbles background -->
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
   <div class="page">
     <header class="header">
-      <h1>Probiotic Drink Designer</h1>
-      <p>Design low-ABV, naturally carbonated blends using your WWY model.</p>
+      <div class="brand">
+        <div class="brand-icon">🧪</div>
+        <div class="brand-text">
+          <h1>Probiotic Designer</h1>
+          <p>Craft your perfect fermented drink</p>
+        </div>
+      </div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="auto">
+          <span class="mode-icon">✨</span> Auto Mode
+        </button>
+        <button class="mode-btn" data-mode="manual">
+          <span class="mode-icon">🧮</span> Manual Mode
+        </button>
+      </div>
     </header>
 
     <main class="main">
-      <section class="card">
-        <h2>1. Design Settings</h2>
-
-        <div class="mode-toggle">
-          <button class="mode-btn active" data-mode="auto">Auto Mode</button>
-          <button class="mode-btn" data-mode="manual">Manual Mode</button>
-        </div>
-
+      <!-- Left Panel - Form -->
+      <section class="card form-card">
         <!-- Auto mode form -->
         <form id="auto-form" class="mode-form">
-          <div class="field">
-            <label for="sweetness">Sweetness (1–10)</label>
-            <input type="number" id="sweetness" name="sweetness" min="1" max="10" value="7">
+          <h2>Auto Recipe Generator</h2>
+          <p class="subtitle">Set your preferences and let us create the perfect blend.</p>
+
+          <div class="field-group">
+            <div class="slider-field">
+              <label for="sweetness">
+                Sweetness
+                <span class="slider-value" id="sweetness-value">7</span>
+              </label>
+              <input type="range" id="sweetness" name="sweetness" min="1" max="10" value="7" class="slider">
+              <div class="slider-labels">
+                <span>Dry</span>
+                <span>Sweet</span>
+              </div>
+            </div>
+
+            <div class="slider-field">
+              <label for="tartness">
+                Tartness
+                <span class="slider-value" id="tartness-value">5</span>
+              </label>
+              <input type="range" id="tartness" name="tartness" min="1" max="10" value="5" class="slider">
+              <div class="slider-labels">
+                <span>Mild</span>
+                <span>Tangy</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="style">Flavor Style</label>
+              <select id="style" name="style">
+                <option value="">Any</option>
+                <option value="tropical">Tropical</option>
+                <option value="berry">Berry</option>
+                <option value="citrus">Citrus</option>
+                <option value="neutral">Neutral</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="auto-intensity">Juice Intensity</label>
+              <select id="auto-intensity" name="intensity">
+                <option value="light">Light</option>
+                <option value="medium" selected>Medium</option>
+                <option value="strong">Strong</option>
+              </select>
+            </div>
           </div>
 
           <div class="field">
-            <label for="tartness">Tartness (1–10)</label>
-            <input type="number" id="tartness" name="tartness" min="1" max="10" value="5">
+            <label for="auto-batch_l">Batch Size</label>
+            <div class="input-with-unit">
+              <input type="number" id="auto-batch_l" name="batch_l" step="0.5" value="3">
+              <span class="unit">L</span>
+            </div>
           </div>
 
           <div class="field">
-            <label for="style">Flavour Style</label>
-            <select id="style" name="style">
-              <option value="">Any</option>
-              <option value="tropical">Tropical</option>
-              <option value="berry">Berry</option>
-              <option value="citrus">Citrus</option>
-              <option value="neutral">Neutral</option>
-            </select>
+            <label for="auto-juice_ml_per_L">Total Juice per Liter</label>
+            <div class="input-with-button">
+              <div class="input-with-unit">
+                <input type="number" id="auto-juice_ml_per_L" name="juice_ml_per_L" step="5" value="80">
+                <span class="unit">ml</span>
+              </div>
+              <button type="button" id="auto-calc-juice" class="btn-secondary">
+                <span class="btn-icon">🧮</span> Auto-Calculate
+              </button>
+            </div>
+            <small id="auto-juice-status" class="status-text"></small>
           </div>
 
           <div class="field">
-            <label for="auto-batch_l">Batch Size (L)</label>
-            <input type="number" id="auto-batch_l" name="batch_l" step="0.5" value="3">
+            <label for="auto-temp_C">Room Temperature</label>
+            <div class="input-with-button">
+              <div class="input-with-unit">
+                <input type="number" id="auto-temp_C" name="temp_C" step="0.5" value="28">
+                <span class="unit">°C</span>
+              </div>
+              <button type="button" id="auto-detect-temp" class="btn-secondary">
+                <span class="btn-icon">📍</span> Auto-Detect
+              </button>
+            </div>
+            <small id="auto-temp-status" class="status-text"></small>
           </div>
 
-          <div class="field">
-            <label for="auto-juice_ml_per_L">Total Juice per L (ml)</label>
-            <input type="number" id="auto-juice_ml_per_L" name="juice_ml_per_L" step="5" value="80">
-          </div>
-
-          <button type="submit" class="btn-primary">Generate Auto Blend</button>
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">✨</span> Generate Auto Blend
+          </button>
         </form>
 
         <!-- Manual mode form -->
         <form id="manual-form" class="mode-form hidden">
-          <div class="field-row">
-            <div class="field">
-              <label for="fruit1">Fruit 1</label>
-              <select id="fruit1" name="fruit1"></select>
-            </div>
-            <div class="field">
-              <label for="pct1">% of blend</label>
-              <input type="number" id="pct1" name="pct1" min="0" max="100" value="40">
-            </div>
-          </div>
+          <h2>Manual Blend Calculator</h2>
+          <p class="subtitle">Select your fruits and percentages for precise control.</p>
 
-          <div class="field-row">
-            <div class="field">
-              <label for="fruit2">Fruit 2</label>
-              <select id="fruit2" name="fruit2"></select>
+          <div class="fruits-section">
+            <div class="field-header">
+              <span>Fruit Selection</span>
+              <span class="total-pct">Total: <span id="total-pct">0</span>%</span>
             </div>
-            <div class="field">
-              <label for="pct2">% of blend</label>
-              <input type="number" id="pct2" name="pct2" min="0" max="100" value="30">
-            </div>
-          </div>
 
-          <div class="field-row">
-            <div class="field">
-              <label for="fruit3">Fruit 3</label>
-              <select id="fruit3" name="fruit3"></select>
+            <div class="fruit-row">
+              <div class="fruit-number">1</div>
+              <select id="fruit1" name="fruit1" class="fruit-select"></select>
+              <input type="number" id="pct1" name="pct1" min="0" max="100" value="25" class="pct-input">
+              <span class="pct-label">%</span>
             </div>
-            <div class="field">
-              <label for="pct3">% of blend</label>
-              <input type="number" id="pct3" name="pct3" min="0" max="100" value="20">
-            </div>
-          </div>
 
-          <div class="field-row">
-            <div class="field">
-              <label for="fruit4">Fruit 4</label>
-              <select id="fruit4" name="fruit4"></select>
+            <div class="fruit-row">
+              <div class="fruit-number">2</div>
+              <select id="fruit2" name="fruit2" class="fruit-select"></select>
+              <input type="number" id="pct2" name="pct2" min="0" max="100" value="25" class="pct-input">
+              <span class="pct-label">%</span>
             </div>
-            <div class="field">
-              <label for="pct4">% of blend</label>
-              <input type="number" id="pct4" name="pct4" min="0" max="100" value="10">
+
+            <div class="fruit-row">
+              <div class="fruit-number">3</div>
+              <select id="fruit3" name="fruit3" class="fruit-select"></select>
+              <input type="number" id="pct3" name="pct3" min="0" max="100" value="25" class="pct-input">
+              <span class="pct-label">%</span>
+            </div>
+
+            <div class="fruit-row">
+              <div class="fruit-number">4</div>
+              <select id="fruit4" name="fruit4" class="fruit-select"></select>
+              <input type="number" id="pct4" name="pct4" min="0" max="100" value="25" class="pct-input">
+              <span class="pct-label">%</span>
             </div>
           </div>
 
           <div class="field">
-            <label for="manual-batch_l">Batch Size (L)</label>
-            <input type="number" id="manual-batch_l" name="batch_l" step="0.5" value="3">
+            <label for="manual-batch_l">Batch Size</label>
+            <div class="input-with-unit">
+              <input type="number" id="manual-batch_l" name="batch_l" step="0.5" value="3">
+              <span class="unit">L</span>
+            </div>
           </div>
 
           <div class="field">
-            <label for="manual-juice_ml_per_L">Total Juice per L (ml)</label>
-            <input type="number" id="manual-juice_ml_per_L" name="juice_ml_per_L" step="5" value="80">
+            <label for="manual-juice_ml_per_L">Total Juice per Liter</label>
+            <div class="input-with-button">
+              <div class="input-with-unit">
+                <input type="number" id="manual-juice_ml_per_L" name="juice_ml_per_L" step="5" value="80">
+                <span class="unit">ml</span>
+              </div>
+              <button type="button" id="manual-calc-juice" class="btn-secondary">
+                <span class="btn-icon">🧮</span> Auto-Calculate
+              </button>
+            </div>
+            <small id="manual-juice-status" class="status-text"></small>
           </div>
 
           <div class="field">
-            <label for="temp_C">Room Temperature (°C)</label>
-            <input type="number" id="temp_C" name="temp_C" step="0.5" value="28">
+            <label for="temp_C">Room Temperature</label>
+            <div class="input-with-button">
+              <div class="input-with-unit">
+                <input type="number" id="temp_C" name="temp_C" step="0.5" value="28">
+                <span class="unit">°C</span>
+              </div>
+              <button type="button" id="manual-detect-temp" class="btn-secondary">
+                <span class="btn-icon">📍</span> Auto-Detect
+              </button>
+            </div>
+            <small id="manual-temp-status" class="status-text"></small>
           </div>
 
-          <button type="submit" class="btn-primary">Calculate Manual Blend</button>
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">🧮</span> Calculate Manual Blend
+          </button>
         </form>
       </section>
 
-      <section class="card" id="results-card">
-        <h2>2. Suggested Blend & Recipe</h2>
-        <div id="blend-output" class="blend-output hidden">
-          <h3>Fruits</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Fruit</th>
-                <th>% in Blend</th>
-                <th>ml / L</th>
-                <th>ml for Batch</th>
-              </tr>
-            </thead>
-            <tbody id="fruits-table-body"></tbody>
-          </table>
+      <!-- Right Panel - Results -->
+      <section class="card results-card">
+        <h2>Recipe Results</h2>
 
-          <h3>Fermentation Metrics</h3>
-          <div class="metrics">
-            <div class="metric">
-              <span class="label">Total Sugar</span>
-              <span class="value" id="metric-sugar"></span>
-              <span class="unit">g/L</span>
-            </div>
-            <div class="metric">
-              <span class="label">CO₂</span>
-              <span class="value" id="metric-co2"></span>
-              <span class="unit">vols</span>
-            </div>
-            <div class="metric">
-              <span class="label">ABV</span>
-              <span class="value" id="metric-abv"></span>
-              <span class="unit">% (max)</span>
-            </div>
-            <div class="metric">
-              <span class="label">Safety</span>
-              <span class="value" id="metric-safety"></span>
+        <div id="correction-notification" class="notification hidden"></div>
+
+        <div id="blend-output" class="blend-output hidden">
+          <div class="results-section">
+            <h3 class="section-title">Fruit Blend</h3>
+            <div class="fruit-blend-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fruit</th>
+                    <th>% in Blend</th>
+                    <th>ml/L</th>
+                    <th>ml for Batch</th>
+                  </tr>
+                </thead>
+                <tbody id="fruits-table-body"></tbody>
+              </table>
             </div>
           </div>
 
-          <h3>Cost & Safety Guidance</h3>
-          <p id="metric-cost" class="muted"></p>
-          <p id="metric-safety-detail" class="muted"></p>
+          <div class="results-section">
+            <h3 class="section-title">
+              <span class="section-icon">🧪</span> Complete Formulation
+            </h3>
+            <div class="formulation-grid">
+              <div class="formulation-row">
+                <span class="formulation-label">Water</span>
+                <span class="formulation-value" id="form-water">--</span>
+              </div>
+              <div class="formulation-row">
+                <span class="formulation-label">Total Fruit Juice Blend</span>
+                <span class="formulation-value" id="form-fruit-juice">--</span>
+              </div>
+              <div class="formulation-breakdown" id="fruit-juice-details">
+                <!-- Individual fruit juices will be inserted here -->
+              </div>
+              <div class="formulation-row">
+                <span class="formulation-label">Lemon Juice</span>
+                <span class="formulation-value" id="form-lemon">--</span>
+              </div>
+              <div class="formulation-row">
+                <span class="formulation-label">Ginger Bug (Culture)</span>
+                <span class="formulation-value" id="form-ginger-bug">--</span>
+              </div>
+              <div class="formulation-total-row">
+                <span class="formulation-label"><strong>Total Batch</strong></span>
+                <span class="formulation-value"><strong id="form-total">--</strong></span>
+              </div>
+            </div>
+          </div>
 
-          <h3>Recipe Summary</h3>
-          <p id="recipe-summary"></p>
+          <div class="results-section fermentation-section">
+            <h3 class="section-title">
+              <span class="section-icon">⏱️</span> Optimal Fermentation Time
+            </h3>
+            <div class="fermentation-display">
+              <div class="fermentation-main">
+                <span class="fermentation-hours" id="ferment-optimal">--</span>
+                <span class="fermentation-label">hours</span>
+              </div>
+              <div class="fermentation-range" id="ferment-range-text">Range: -- to -- hours</div>
+            </div>
+            <div class="fermentation-quality" id="ferment-recommendation">--</div>
+            <div class="fermentation-phases">
+              <div class="phase-card">
+                <div class="phase-time" id="phase-1-time">--</div>
+                <div class="phase-label">Phase 1: Active Fermentation</div>
+              </div>
+              <div class="phase-card">
+                <div class="phase-time" id="phase-2-time">--</div>
+                <div class="phase-label">Phase 2: Settling & Carbonation</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon">💧</div>
+              <div class="metric-content">
+                <div class="metric-label">Total Sugar</div>
+                <div class="metric-value">
+                  <span id="metric-sugar">--</span>
+                  <span class="metric-unit">g/L</span>
+                </div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">🫧</div>
+              <div class="metric-content">
+                <div class="metric-label">CO₂</div>
+                <div class="metric-value">
+                  <span id="metric-co2">--</span>
+                  <span class="metric-unit">vols</span>
+                </div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">🍷</div>
+              <div class="metric-content">
+                <div class="metric-label">ABV</div>
+                <div class="metric-value">
+                  <span id="metric-abv">--</span>
+                  <span class="metric-unit">% (max)</span>
+                </div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">🛡️</div>
+              <div class="metric-content">
+                <div class="metric-label">Safety</div>
+                <div class="metric-value">
+                  <span id="metric-safety">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-cards">
+            <div class="info-card">
+              <div class="info-icon">💰</div>
+              <div class="info-content">
+                <div class="info-label">Estimated Cost</div>
+                <div class="info-value" id="metric-cost">--</div>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">🌡️</div>
+              <div class="info-content">
+                <div class="info-label">Safety Detail</div>
+                <div class="info-value" id="metric-safety-detail">--</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="recipe-summary-card">
+            <p id="recipe-summary">--</p>
+          </div>
         </div>
 
-        <div id="no-results" class="muted">
-          Choose Auto or Manual mode, fill the form and click <strong>Generate</strong> to see a recipe.
+        <div id="no-results" class="empty-state">
+          <div class="empty-icon">🧪</div>
+          <div class="sparkle">✨</div>
+          <h3>Ready to Create</h3>
+          <p>Configure your probiotic drink using the form on the left, then generate your perfect recipe with intelligent calculations.</p>
+          <div class="empty-features">
+            <span class="feature-dot">●</span> Auto mode for quick recipes
+            <span class="feature-dot orange">●</span> Manual mode for precision
+          </div>
         </div>
       </section>
     </main>
-
-    <footer class="footer">
-      <p>Powered by your WWY Excel model, now in a web app.</p>
-    </footer>
   </div>
 
   <script src="{{ url_for('static', filename='app.js') }}"></script>
